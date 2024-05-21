@@ -1,0 +1,10 @@
+# Ignore app2.py
+app2.py
+
+# Ignore the venv folder (assuming it's named 'venv')
+venv/
+
+# Ignore the videos folder
+videos/
+
+data/

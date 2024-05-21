@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Fake Detection</title>
+    <!-- Include Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        .spinner-container {
+            position: fixed;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body class="bg-gray-100">
+
+    
+
+    <div class="flex switch-group mt-8 mx-4">
+        
+        <div class="switch-group">
+            <div class="switch cursor-pointer mx-2 px-3 py-2 rounded-full" onclick="togglePage(3)">Deepfake Detector
+            </div>
+        </div>
+        
+    </div>
+
+   
+
+    <div id="page3" class="page-content hidden m-10">
+        <h1 class="text-xl font-semibold">Upload Video</h1>
+        <input type="file" id="videoFile" name="video_file" accept="video/*">
+        <button onclick="uploadVideo()" class="bg-green-500 m-2 px-3 py-2 rounded-lg">Upload</button>
+        <div id="videoFeed" style="width: 50%;"></div>
+        <div class="spinner-container">
+            <div class="spinner hidden text-xl font-semibold" id="spinner">
+                <i class="fas fa-spinner fa-spin"></i> Video processing...
+            </div>
+        </div>
+        <div class="m-4 p-2 bg-gray-300 rounded-lg text-xl" id="resultVideo"></div>
+    </div>
+
+    
+
+   
+    <script>
+        async function uploadVideo() {
+            const fileInput = document.getElementById('videoFile');
+            const videoFile = fileInput.files[0];
+
+            if (!videoFile) {
+                alert('Please select a video file.');
+                return;
+            }
+
+            const videoFeed = document.getElementById('videoFeed');
+            const videoElement = document.createElement('video');
+            videoElement.src = URL.createObjectURL(videoFile);
+            videoElement.controls = true;
+            videoFeed.appendChild(videoElement);
+            const formData = new FormData();
+            formData.append('video_file', videoFile);
+
+            document.getElementById('spinner').classList.remove('hidden');
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                console.log(data);
+                //document.getElementById('resultVideo').innerHTML = "This video is " + data.prediction;
+                const resultVideo = document.getElementById('resultVideo');
+
+               
+                document.getElementById('spinner').classList.add('hidden');
+                // Check the prediction value and set the text and class accordingly
+                if (data.prediction === 'REAL') {
+                    resultVideo.innerHTML = '<span class="text-4xl text-green-600 font-bold">This video is REAL</span>';
+                } else if (data.prediction === 'FAKE') {
+                    resultVideo.innerHTML = '<span class="text-4xl text-red-600 font-bold">This video is FAKE</span>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the video.');
+            }
+        }
+    </script>
+    <script>
+        function togglePage(pageNumber) {
+            // Hide all page content elements
+            var pageContents = document.getElementsByClassName('page-content');
+            for (var i = 0; i < pageContents.length; i++) {
+                pageContents[i].classList.add('hidden');
+            }
+
+            // Show the selected page content element
+            var selectedPage = document.getElementById('page' + pageNumber);
+            selectedPage.classList.remove('hidden');
+
+            // Remove the active class from all switches
+            var switches = document.querySelectorAll('.switch');
+            for (var j = 0; j < switches.length; j++) {
+                switches[j].classList.remove('bg-blue-200');
+
+            }
+
+            // Add the active class to the clicked switch
+            var activeSwitch = document.querySelector('.switch-group:nth-child(' + pageNumber + ') .switch');
+            //activeSwitch.innerHTML = "CHANGED";
+            console.log(activeSwitch.innerHTML);
+            activeSwitch.classList.add('bg-blue-200');
+        }
+
+    </script>
+</body>
+
+</html>
