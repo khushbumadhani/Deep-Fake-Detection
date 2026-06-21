@@ -87,7 +87,9 @@ def predict():
     video_file = request.files['video_file']
     # Timestamp for unique filename
     timestamp = str(int(time.time()))
-    video_path = './videos/' + timestamp + '_' + video_file.filename
+    upload_dir = './videos'
+    os.makedirs(upload_dir, exist_ok=True)
+    video_path = os.path.join(upload_dir, timestamp + '_' + video_file.filename)
     video_file.save(video_path)
     
     # Face extraction
