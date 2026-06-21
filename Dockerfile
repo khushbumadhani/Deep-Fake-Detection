@@ -11,6 +11,7 @@ RUN apt-get update \
         libsm6 \
         libxrender1 \
         libxext6 \
+        libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
